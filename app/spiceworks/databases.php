@@ -3,8 +3,7 @@ use Aws\S3\S3Client;
 use Aws\S3\Exception\S3Exception;
 use Carbon\Carbon;
 require 'vendor/autoload.php';
-$config = require('app/config.php');
-$removeDirectory = FALSE;
+// $config = require('app/config.php');
 
 function databasesSw(){
   //DATABASE
@@ -47,11 +46,14 @@ function databasesSw(){
           $log->insert('[--] - Cierre: '.$name_zip);
 
           //FTP
-          $ftp_conn = ftp_connect(FTP_SRV) or die('Could not connect to: '.FTP_SRV);
-          @ftp_login($ftp_conn, FTP_USER, FTP_PASS);
-          $log->insert('[FT] - Enviando: '.$name_zip.' ---> '.FTP_SRV.'/'.FTP_PATH_SW);
-          ftp_put($ftp_conn, FTP_PATH_SW.$name_zip, TEMP_PATH.$name_zip, FTP_BINARY);
-          ftp_close($ftp_conn);
+          if (FTP_SEND_SW) {
+            $ftp_conn = ftp_connect(FTP_SRV) or die('Could not connect to: '.FTP_SRV);
+            @ftp_login($ftp_conn, FTP_USER, FTP_PASS);
+            $log->insert('[FT] - Enviando: '.$name_zip.' ---> '.FTP_SRV.'/'.FTP_PATH_SW);
+            ftp_put($ftp_conn, FTP_PATH_SW.$name_zip, TEMP_PATH.$name_zip, FTP_BINARY);
+            ftp_close($ftp_conn);
+          }
+
 
           //SUBIR ARCHIVO
           try {
@@ -62,7 +64,7 @@ function databasesSw(){
                   'Body'   => fopen(TEMP_PATH.$name_zip, 'rb')
               ]);
               $log->insert('[BK] - '.$name_zip.' Enviado.');
-              if($removeDirectory){
+              if(RM_DIR_SW){
                   $log->insert('[BK] - Eliminando: '.$relativePath);
                   unlink($filePath); //BORRAR ORIGEN
 

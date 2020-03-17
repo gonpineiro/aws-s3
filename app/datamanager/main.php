@@ -2,11 +2,12 @@
 use Aws\S3\S3Client;
 use Aws\S3\Exception\S3Exception;
 use Carbon\Carbon;
-
+require 'config.php';
 //MODULOS
 require 'app/datamanager/databases.php';
 require 'app/datamanager/proformas.php';
 require 'app/datamanager/recibos.php';
+
 
 $conn_name = Carbon::now()->isoFormat('DD_MM_YYYY-hh_mm_ss')."_DM";
 fileExist(LOG_PATH_DM);
@@ -25,10 +26,13 @@ $log->insert('[--] - Cerrando archivo: '.$name_zip);
 $zip->close();
 $log->insert('[--] - Cierre: '.$name_zip);
 
-@ftp_login($ftp_conn, FTP_USER, FTP_PASS);
-$log->insert('[FT] - Enviando: '.$name_zip.' ---> '.FTP_SRV.'/'.FTP_PATH_SW);
-ftp_put($ftp_conn, FTP_PATH_DM.$name_zip, TEMP_PATH.$name_zip, FTP_BINARY);
-ftp_close($ftp_conn);
+//FTP
+if (FTP_SEND_DM) {
+  @ftp_login($ftp_conn, FTP_USER, FTP_PASS);
+  $log->insert('[FT] - Enviando: '.$name_zip.' ---> '.FTP_SRV.'/'.FTP_PATH_DM);
+  ftp_put($ftp_conn, FTP_PATH_DM.$name_zip, TEMP_PATH.$name_zip, FTP_BINARY);
+  ftp_close($ftp_conn);
+}
 
 //SUBIR ARCHIVO
 $log->insert('[BK] - Procesando: '.$name_zip);
