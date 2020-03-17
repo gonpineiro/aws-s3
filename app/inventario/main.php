@@ -5,9 +5,9 @@ use Carbon\Carbon;
 //require 'vendor/autoload.php';
 //$config = require('app/config.php');
 $conn_name = Carbon::now()->isoFormat('DD_MM_YYYY-hh_mm_ss')."_INV";
-$log = new Log($conn_name, "logs/inventario/");
-
-$backupDatabase = new Backup_Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, CHARSET);
+fileExist(LOG_PATH_INV);
+$log = new Log($conn_name, LOG_PATH_INV);
+$backupDatabase = new Backup_Database('localhost', 'root', 'root', 'inventario', CHARSET);
 $result = $backupDatabase->backupTables(TABLES, BACKUP_DIR) ? 'OK' : 'KO';
 // Use $output variable for further processing, for example to send it by email
 $output = $backupDatabase->getOutput();
@@ -18,16 +18,16 @@ $log->insert('[BK] - Procesando: '.$backupDatabase->backupFile.'.gz');
 //FTP
 $ftp_conn = ftp_connect(FTP_SRV) or die('Could not connect to: '.FTP_SRV);
 @ftp_login($ftp_conn, FTP_USER, FTP_PASS);
-$log->insert('[FT] - Enviando: '.$name_zip.' ---> '.FTP_SRV.'/'.FTP_PATH_SW.'/');
+$log->insert('[FT] - Enviando: '.TEMP_PATH.$backupDatabase->backupFile.'.gz'.' ---> '.FTP_SRV.'/'.S3_PATH_INV);
 ftp_put($ftp_conn, FTP_PATH_INV.$backupDatabase->backupFile.'.gz', TEMP_PATH.$backupDatabase->backupFile.'.gz', FTP_BINARY);
 ftp_close($ftp_conn);
 
 
 try {
-    $log->insert('[BK] - Enviando: '.$backupDatabase->backupFile.'.gz'.' ---> '.S3_BUCKET.'prueba/resguardo/inventario/'.$backupDatabase->backupFile.'.gz');
+    $log->insert('[BK] - Enviando: '.$backupDatabase->backupFile.'.gz'.' ---> '.S3_BUCKET.'/'.S3_PATH_SW.$backupDatabase->backupFile.'.gz');
     $s3->putObject([
         'Bucket' => $config['s3']['bucket'],
-        'Key'    => 'prueba/resguardo/inventario/'.$backupDatabase->backupFile.'.gz',
+        'Key'    => S3_PATH_INV.$backupDatabase->backupFile.'.gz',
         'Body'   => fopen(TEMP_PATH.$backupDatabase->backupFile.'.gz', 'rb')
     ]);
     $log->insert('[BK] - '.$backupDatabase->backupFile.'.gz'.' Enviado.');

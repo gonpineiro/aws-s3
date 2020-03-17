@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * This file contains the Backup_Database class wich performs
  * a partial or complete backup of any given MySQL database
@@ -6,21 +6,21 @@
  * @version 1.0
  */
 
-/**
- * Define database parameters here
- */
-define("DB_USER", 'root');
-define("DB_PASSWORD", 'root');
-define("DB_NAME", 'inventario');
-define("DB_HOST", 'localhost');
-define("BACKUP_DIR", 'temp'); // Comment this line to use same script's directory ('.')
-define("TABLES", '*'); // Full backup
-//define("TABLES", 'table1, table2, table3'); // Partial backup
-define("CHARSET", 'utf8');
-define("GZIP_BACKUP_FILE", true); // Set to false if you want plain SQL backup files (not gzipped)
-define("DISABLE_FOREIGN_KEY_CHECKS", true); // Set to true if you are having foreign key constraint fails
-define("BATCH_SIZE", 1000); // Batch size when selecting rows from database in order to not exhaust system memory
-                            // Also number of rows per INSERT statement in backup file
+// /**
+//  * Define database parameters here
+//  */
+// define("DB_USER", 'root');
+// define("DB_PASSWORD", 'root');
+// define("DB_NAME", 'inventario');
+// define("DB_HOST", 'localhost');
+// define("BACKUP_DIR", 'temp'); // Comment this line to use same script's directory ('.')
+// define("TABLES", '*'); // Full backup
+// //define("TABLES", 'table1, table2, table3'); // Partial backup
+// define("CHARSET", 'utf8');
+// define("GZIP_BACKUP_FILE", true); // Set to false if you want plain SQL backup files (not gzipped)
+// define("DISABLE_FOREIGN_KEY_CHECKS", true); // Set to true if you are having foreign key constraint fails
+// define("BATCH_SIZE", 1000); // Batch size when selecting rows from database in order to not exhaust system memory
+//                             // Also number of rows per INSERT statement in backup file
 
 /**
  * The Backup_Database class
@@ -57,7 +57,7 @@ class Backup_Database {
     var $conn;
 
     /**
-     * Backup directory where backup files are stored 
+     * Backup directory where backup files are stored
      */
     var $backupDir;
 
@@ -146,7 +146,7 @@ class Backup_Database {
             $sql .= 'USE `'.$this->dbName."`;\n\n";
 
             /**
-             * Disable foreign key checks 
+             * Disable foreign key checks
              */
             if ($this->disableForeignKeyChecks === true) {
                 $sql .= "SET foreign_key_checks = 0;\n\n";
@@ -172,11 +172,11 @@ class Backup_Database {
                 $row = mysqli_fetch_row(mysqli_query($this->conn, 'SELECT COUNT(*) FROM `'.$table.'`'));
                 $numRows = $row[0];
 
-                // Split table in batches in order to not exhaust system memory 
+                // Split table in batches in order to not exhaust system memory
                 $numBatches = intval($numRows / $this->batchSize) + 1; // Number of while-loop calls to perform
 
                 for ($b = 1; $b <= $numBatches; $b++) {
-                    
+
                     $query = 'SELECT * FROM `' . $table . '` LIMIT ' . ($b * $this->batchSize - $this->batchSize) . ',' . $this->batchSize;
                     $result = mysqli_query($this->conn, $query);
                     $realBatchSize = mysqli_num_rows ($result); // Last batch size can be different from $this->batchSize
@@ -207,23 +207,23 @@ class Backup_Database {
                                     } else {
                                         $sql.= 'NULL';
                                     }
-    
+
                                     if ($j < ($numFields-1)) {
                                         $sql .= ',';
                                     }
                                 }
-    
+
                                 if ($rowCount == $realBatchSize) {
                                     $rowCount = 0;
                                     $sql.= ");\n"; //close the insert statement
                                 } else {
                                     $sql.= "),\n"; //close the row
                                 }
-    
+
                                 $rowCount++;
                             }
                         }
-    
+
                         $this->saveFile($sql);
                         $sql = '';
                     }
@@ -241,7 +241,7 @@ class Backup_Database {
                     while ($trigger = mysqli_fetch_row ($result)) {
                         $triggers[] = $trigger[0];
                     }
-                    
+
                     // Iterate through triggers of the table
                     foreach ( $triggers as $trigger ) {
                         $query= 'SHOW CREATE TRIGGER `' . $trigger . '`';
@@ -255,14 +255,14 @@ class Backup_Database {
                     $this->saveFile($sql);
                     $sql = '';
                 }*/
- 
+
                 $sql.="\n\n";
 
                 //$this->obfPrint('OK');
             }
 
             /**
-             * Re-enable foreign key checks 
+             * Re-enable foreign key checks
              */
             if ($this->disableForeignKeyChecks === true) {
                 $sql .= "SET foreign_key_checks = 1;\n";
@@ -339,7 +339,7 @@ class Backup_Database {
         } else {
             return false;
         }
-        
+
         //$this->obfPrint('OK');
         return $dest;
     }
@@ -367,7 +367,7 @@ class Backup_Database {
         if ($lineBreaksBefore > 0) {
             for ($i = 1; $i <= $lineBreaksBefore; $i++) {
                 $output .= $lineBreak;
-            }                
+            }
         }
 
         $output .= $msg;
@@ -375,7 +375,7 @@ class Backup_Database {
         if ($lineBreaksAfter > 0) {
             for ($i = 1; $i <= $lineBreaksAfter; $i++) {
                 $output .= $lineBreak;
-            }                
+            }
         }
 
 

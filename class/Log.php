@@ -10,7 +10,7 @@ class Log
   public function insert($text)
   {
 
-  $log    = $this->date . " [] " . $text . PHP_EOL;
+  $log    = date("Y-m-d H:i:s") . " [] " . $text . PHP_EOL;
   $result = (file_put_contents($this->path . $this->filename . ".log", $log, FILE_APPEND)) ? 1 : 0;
 
   return $result;

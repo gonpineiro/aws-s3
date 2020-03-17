@@ -9,6 +9,7 @@ require 'app/datamanager/proformas.php';
 require 'app/datamanager/recibos.php';
 
 $conn_name = Carbon::now()->isoFormat('DD_MM_YYYY-hh_mm_ss')."_DM";
+fileExist(LOG_PATH_DM);
 $log = new Log($conn_name, LOG_PATH_DM);
 $name_zip = Carbon::now()->isoFormat('YYYYMMDDHHmmss').'.zip';
 // Initialize archive object
@@ -25,7 +26,7 @@ $zip->close();
 $log->insert('[--] - Cierre: '.$name_zip);
 
 @ftp_login($ftp_conn, FTP_USER, FTP_PASS);
-$log->insert('[FT] - Enviando: '.$name_zip.' ---> '.FTP_SRV.'/'.FTP_PATH_SW.'/');
+$log->insert('[FT] - Enviando: '.$name_zip.' ---> '.FTP_SRV.'/'.FTP_PATH_SW);
 ftp_put($ftp_conn, FTP_PATH_DM.$name_zip, TEMP_PATH.$name_zip, FTP_BINARY);
 ftp_close($ftp_conn);
 
@@ -35,10 +36,10 @@ try {
     $log->insert('[BK] - Copiando: '.$name_zip. ' ---> '.COPY_PATH);
     copy(TEMP_PATH.$name_zip, COPY_PATH.$name_zip);
     //echo 'Se copio '.$config['datamanager']['temp_path'].$name_zip."\n";
-    $log->insert('[BK] - Enviando: '.$name_zip.' ---> '.S3_BUCKET.'/prueba/resguardo/dm/'.$name_zip);
+    $log->insert('[BK] - Enviando: '.$name_zip.' ---> '.S3_BUCKET.'/'.S3_PATH_DM.$name_zip);
     $s3->putObject([
         'Bucket' => S3_BUCKET,
-        'Key'    => 'prueba/resguardo/dm/'.$name_zip,
+        'Key'    => S3_PATH_DM.$name_zip,
         'Body'   => fopen(TEMP_PATH.$name_zip, 'rb')
     ]);
 

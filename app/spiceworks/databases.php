@@ -49,16 +49,16 @@ function databasesSw(){
           //FTP
           $ftp_conn = ftp_connect(FTP_SRV) or die('Could not connect to: '.FTP_SRV);
           @ftp_login($ftp_conn, FTP_USER, FTP_PASS);
-          $log->insert('[FT] - Enviando: '.$name_zip.' ---> '.FTP_SRV.'/'.FTP_PATH_SW.'/');
+          $log->insert('[FT] - Enviando: '.$name_zip.' ---> '.FTP_SRV.'/'.FTP_PATH_SW);
           ftp_put($ftp_conn, FTP_PATH_SW.$name_zip, TEMP_PATH.$name_zip, FTP_BINARY);
           ftp_close($ftp_conn);
-          
+
           //SUBIR ARCHIVO
           try {
-              $log->insert('[BK] - Enviando: '.$name_zip.' ---> '.S3_BUCKET.'/prueba/resguardo/sw/'.$name_zip);
+              $log->insert('[BK] - Enviando: '.$name_zip.' ---> '.S3_BUCKET.'/'.S3_PATH_SW.$name_zip);
               $s3->putObject([
                   'Bucket' => S3_BUCKET,
-                  'Key'    => 'prueba/resguardo/spiceworks/'.$name_zip,
+                  'Key'    => S3_PATH_SW.$name_zip,
                   'Body'   => fopen(TEMP_PATH.$name_zip, 'rb')
               ]);
               $log->insert('[BK] - '.$name_zip.' Enviado.');
