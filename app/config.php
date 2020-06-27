@@ -1,7 +1,8 @@
 <?php
-date_default_timezone_set ('America/Argentina/Buenos_Aires');
+date_default_timezone_set('America/Argentina/Buenos_Aires');
 use Aws\S3\S3Client;
 use Aws\S3\Exception\S3Exception;
+
 require 'vendor/autoload.php';
 //CONFIG S3 Aws
 define("S3_BUCKET", 's3.sab5.ar');
@@ -34,7 +35,7 @@ define("TEMP_PATH", 'temp/');
 
 /////////////////////////////////////////////////////////////////////////////////
 //CONEXION FTP
-$ftp_conn = ftp_connect(FTP_SRV) or die('Could not connect to: '.FTP_SRV);
+//$ftp_conn = ftp_connect(FTP_SRV) or die('Could not connect to: '.FTP_SRV);
 
 //CONEXION A S3
 $credentials = new Aws\Credentials\Credentials(S3_KEY, S3_SECRET);
